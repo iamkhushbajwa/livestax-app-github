@@ -1,0 +1,21 @@
+.splash {
+  position: absolute;
+  height: 100%;
+  width: 100%;
+}
+
+.login-container {
+  position: relative;
+  top: calc(50% - 78px);
+  text-align: center;
+}
+
+.btn-icon i {
+  font-size: 35px;
+}
+
+.btn-icon span {
+  display: inline-block;
+  padding-top: 7px;
+  font-size: 16px;
+}
