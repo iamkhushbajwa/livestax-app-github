@@ -1,3 +1,6 @@
+require 'dotenv'
+Dotenv.load
+
 require 'rack/test'
 require 'router'
 

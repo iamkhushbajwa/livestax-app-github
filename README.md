@@ -14,9 +14,11 @@ Once you're up and running, take a look at the [Contribution Document](https://g
   * `git clone git@github.com:livestax/app-github.git`
 2. Install the Ruby Gem dependencies
   * `bundle`
-3. Start the server
+3. Copy the `env` example and amend
+  * `cp .env.example .env`
+4. Start the server
   * `shotgun`
-4. Open the app in the browser
+5. Open the app in the browser
   * `http://127.0.0.1:9393`
 
 ### Running the tests
