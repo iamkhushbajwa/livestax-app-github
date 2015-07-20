@@ -7,6 +7,7 @@ class Router < Sinatra::Base
 
   get "/apps/repos/?" do
     require_client do |client|
+      @orgs = client.organizations.map{|org| org['login']}
       erb :repos
     end
   end

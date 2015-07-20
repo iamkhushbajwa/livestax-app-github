@@ -9,9 +9,16 @@ describe 'Repository app' do
   end
 
   context 'with a code parameter' do
-    it 'displays the app' do
+    before(:each) do
       visit '/apps/repos?code=bar'
+    end
+
+    it 'displays the app title' do
       expect(page).to have_content 'Repositories'
+    end
+
+    it 'displays a select box of organizations' do
+      expect(page).to have_select('org_select', options: ['', 'FOO','BAR','BAZ'])
     end
   end
 end

@@ -34,5 +34,15 @@ class Github
     end
   end
 
+  attr_reader :authenticated_client
+
   SCOPE = ['read:org'].join(',')
+
+  def initialize(token)
+    @authenticated_client = OAuth2::AccessToken.new(self.class.client, token)
+  end
+
+  def organizations
+    JSON.parse(authenticated_client.get("/user/orgs").body)
+  end
 end

@@ -1,1 +1,9 @@
-Repositories
+<div class="container-fluid">
+  <h1>Repositories</h1>
+  <select class="form-control" id="org_select">
+    <option></option>
+    <% @orgs.each do |org| %>
+      <option value="<%= org %>"><%= org.upcase %></option>
+    <% end %>
+  </select>
+</div>
