@@ -11,6 +11,10 @@ def app
   @app ||= Router
 end
 
+def signed_request
+  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZV9pZCI6IjhiOTUwZTIxMGRhNzcyYzNiZTk0MTkzNTA3NzJhZDE4IiwidGltZXN0YW1wIjoxNDExNTQ5ODczLCJ1c2VyX2lkIjoiNjc1YmVkYWEtZTdlNC00Yzg2LTgxYTQtN2E2NTVhNDU5NTIwIiwiaXNfYWRtaW4iOnRydWUsImlzX2d1ZXN0IjpmYWxzZX0.IzDmQv20nZvjIJYsx4Hv6J6uj5DhurspJjf9kkHcm30'
+end
+
 Capybara.app = app
 Capybara.javascript_driver = :poltergeist
 
@@ -38,11 +42,17 @@ RSpec.configure do |config|
         {'name' => 'Repo 4'}
       ]
     }
+
+    stub_const('Router::REPO_APP_SECRET', 'secret')
     allow_any_instance_of(Github).to receive(:organizations).and_return(organizations)
     allow_any_instance_of(Github).to receive(:organization_repos).with(any_args) do |request, org|
       org_repos[org]
     end
     allow(Github).to receive(:get_token).and_return('foobar')
+  end
+
+  config.after(:each) do
+    Router.class_variable_set :@@token, {}
   end
 
   config.mock_with :rspec do |mocks|

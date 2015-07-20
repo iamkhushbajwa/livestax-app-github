@@ -20,6 +20,7 @@
 </div>
 
 <script>
+  var signed_request = "<%= @signed_request %>";
   function changeRepos() {
     var html = "<div class='list-group'>";
     var repos = JSON.parse(this.responseText);
@@ -38,7 +39,7 @@
 
     var request = new XMLHttpRequest();
     request.onload = changeRepos;
-    request.open("get", "/repos/" + org, true);
+    request.open("get", "/repos/" + org + "?signed_request=" + signed_request, true);
     request.send();
   };
 </script>

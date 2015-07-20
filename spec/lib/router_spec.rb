@@ -1,22 +1,64 @@
 require 'spec_helper'
 
 describe Router do
-  after(:each) do
-    Router.class_variable_set :@@token, nil
-  end
-
   context 'accessing the root route' do
-    context 'with trailing slash' do
-      it 'returns a successful response' do
-        get '/apps/repos/'
-        expect(last_response.status).to eq 200
+    context 'without a signed request' do
+      context 'with trailing slash' do
+        it 'returns a successful response when POSTing' do
+          post '/apps/repos/'
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'This app requires Livestax'
+        end
+
+        it 'returns a successful response when GETting' do
+          get '/apps/repos/'
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'This app requires Livestax'
+        end
+      end
+
+      context 'without trailing slash' do
+        it 'returns a successful response when GETting' do
+          post '/apps/repos'
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'This app requires Livestax'
+        end
+
+        it 'returns a successful response when GETting' do
+          get '/apps/repos'
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'This app requires Livestax'
+        end
       end
     end
 
-    context 'without trailing slash' do
-      it 'returns a successful response' do
-        get '/apps/repos'
-        expect(last_response.status).to eq 200
+    context 'with a signed request' do
+      context 'with trailing slash' do
+        it 'returns a successful response when POSTing' do
+          post '/apps/repos/', signed_request: signed_request
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Login with GitHub'
+        end
+
+        it 'returns a successful response when GETting' do
+          get "/apps/repos/?signed_request=#{signed_request}"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Login with GitHub'
+        end
+      end
+
+      context 'without trailing slash' do
+        it 'returns a successful response when GETting' do
+          post '/apps/repos', signed_request: signed_request
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Login with GitHub'
+        end
+
+        it 'returns a successful response when GETting' do
+          get "/apps/repos?signed_request=#{signed_request}"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Login with GitHub'
+        end
       end
     end
   end
@@ -55,32 +97,45 @@ describe Router do
     end
   end
 
-  context 'accessing the authenticated' do
-    it 'returns a redirected response' do
-      get '/authenticated?app_name=foo&code=bar'
-      expect(last_response.status).to eq 302
-      expect(last_response.location).to eq 'http://example.org/apps/foo?code=bar'
-    end
-  end
-
   context 'accessing /repos/:org' do
     context 'not logged in previously' do
-      it 'returns a successful response' do
-        get '/repos/foo'
-        expect(last_response.status).to eq 200
-        expect(last_response.body).to include 'Login with GitHub'
+      context 'without trailing slash' do
+        it 'returns a successful response' do
+          get "/repos/foo?signed_request=#{signed_request}"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Login with GitHub'
+        end
+      end
+
+      context 'with trailing slash' do
+        it 'returns a successful response' do
+          get "/repos/foo/?signed_request=#{signed_request}"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Login with GitHub'
+        end
       end
     end
 
     context 'logged in previously' do
       before(:each) do
-        Router.class_variable_set :@@token, 'foobar'
+        uuid = JWT.decode(signed_request, Router::REPO_APP_SECRET)[0]['user_id']
+        Router.class_variable_set :@@token, {uuid => 'foobar'}
       end
 
-      it 'returns a successful response' do
-        get '/repos/foo'
-        expect(last_response.status).to eq 200
-        expect(last_response.body).to include 'Repo 1'
+      context 'without trailing slash' do
+        it 'returns a successful response' do
+          get "/repos/foo?signed_request=#{signed_request}"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Repo 1'
+        end
+      end
+
+      context 'with trailing slash' do
+        it 'returns a successful response' do
+          get "/repos/foo/?signed_request=#{signed_request}"
+          expect(last_response.status).to eq 200
+          expect(last_response.body).to include 'Repo 1'
+        end
       end
     end
   end

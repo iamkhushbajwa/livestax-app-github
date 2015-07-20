@@ -66,6 +66,7 @@ PLATFORMS
 DEPENDENCIES
   capybara
   dotenv
+  jwt
   oauth2
   poltergeist
   rack-test

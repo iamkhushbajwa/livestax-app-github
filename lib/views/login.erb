@@ -7,6 +7,11 @@
   </div>
 </div>
 
+<form id="authenticated" method="post">
+  <input type="hidden" name="signed_request" value="<%=@signed_request%>" />
+  <input id="code" type="hidden" name="code" value="" />
+</form>
+
 <script>
   document.getElementById("gh-signin").addEventListener("click", function(e) {
     e.preventDefault();
@@ -14,8 +19,10 @@
       url: window.location.origin + "/auth/",
       provider: "GitHub",
       callback: function(code) {
-        var appName = window.location.pathname.split('/')[2];
-        window.location = "/authenticated?app_name=" + appName + "&code=" + code;
+        document.getElementById("code").value = code;
+        var form = document.getElementById("authenticated");
+        form.action = window.location.pathname;
+        form.submit();
       }
     });
   });
