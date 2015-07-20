@@ -45,4 +45,8 @@ class Github
   def organizations
     JSON.parse(authenticated_client.get("/user/orgs").body)
   end
+
+  def organization_repos(org)
+    JSON.parse(authenticated_client.get("/orgs/#{org}/repos").body)
+  end
 end

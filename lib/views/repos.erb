@@ -1,9 +1,44 @@
-<div class="container-fluid">
-  <h1>Repositories</h1>
-  <select class="form-control" id="org_select">
-    <option></option>
-    <% @orgs.each do |org| %>
-      <option value="<%= org %>"><%= org.upcase %></option>
-    <% end %>
-  </select>
+<div class="container-fluid org-select-container">
+  <div class="form-group">
+    <select type="select" class="form-control" id="org_select" onchange="orgChanged(this.value)">
+      <option></option>
+      <% @orgs.each do |org| %>
+        <option value="<%= org %>"><%= org.upcase %></option>
+      <% end %>
+    </select>
+  </div>
 </div>
+
+<div id="repositories_list"></div>
+
+<div class="notice select-org-notice">
+  <div class="media-badge media-badge-lg media-badge-info-inverse img-circle">
+    <span class="media-badge-container"><i class="fa fa-list"></i></span>
+  </div>
+  <h2 class="text-info"><strong>Select Organization</strong></h2>
+  <p>Please select an organization from above to view it's repositories.</p>
+</div>
+
+<script>
+  function changeRepos() {
+    var html = "<div class='list-group'>";
+    var repos = JSON.parse(this.responseText);
+
+    for (var i=0; i < repos.length; i++) {
+      listItem = "<a href='#' class='list-group-item'>" + repos[i] + "</a>";
+      html = html + listItem;
+    };
+    html = html + "</div>";
+    document.querySelector("#repositories_list").innerHTML = html;
+  };
+
+  function orgChanged(org) {
+    var notice = document.querySelector(".select-org-notice");
+    notice.className = "notice select-org-notice hidden";
+
+    var request = new XMLHttpRequest();
+    request.onload = changeRepos;
+    request.open("get", "/repos/" + org, true);
+    request.send();
+  };
+</script>

@@ -19,3 +19,8 @@
   padding-top: 7px;
   font-size: 16px;
 }
+
+.org-select-container {
+  height: 80px;
+  padding-top: 20px;
+}
