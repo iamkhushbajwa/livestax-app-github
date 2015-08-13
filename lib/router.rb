@@ -1,11 +1,20 @@
 require 'sinatra'
 require_relative 'github'
 
+configure do
+  require 'redis'
+  redis_uri = URI.parse(ENV['REDIS_URL'])
+  REPO_APP_SECRET = ENV['REPO_APP_SECRET']
+  REDIS = Redis.new(
+    host: redis_uri.host,
+    port: redis_uri.port,
+    password: redis_uri.password
+  )
+end
+
 class Router < Sinatra::Base
   set :protection, :except => [:frame_options]
   set :public_dir, 'public'
-  @@token = {}
-  REPO_APP_SECRET = ENV['REPO_APP_SECRET']
 
   def self.get_or_post(url, &block)
     get(url, &block)
@@ -33,17 +42,20 @@ class Router < Sinatra::Base
     end
   end
 
+  private
+
   def require_client
     @signed_request = params[:signed_request]
     return 'This app requires Livestax' if !@signed_request
     uuid = validate_signed_request(params[:signed_request])['user_id']
 
-    if token = @@token[uuid]
+    if token = REDIS.get(uuid)
       return yield(Github.new(token))
     end
 
     if code = params[:code]
-      token = @@token[uuid] = Github.get_token(code, request.url)
+      token = Github.get_token(code, request.url)
+      REDIS.set(uuid, token)
       yield(Github.new(token))
     else
        erb(:login)
