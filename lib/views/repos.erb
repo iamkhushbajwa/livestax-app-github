@@ -29,6 +29,7 @@
 
 <script>
   var signed_request = "<%= @signed_request %>";
+  Livestax.trigger("authentication");
   Livestax.menu.set("Logout", "sign-out", function() {
   var data = {
     title: "Logout",

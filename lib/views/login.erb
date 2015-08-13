@@ -13,6 +13,21 @@
 </form>
 
 <script>
+  var namespaces = [
+    "<%= ENV['REPOS_APP_NAMESPACE']%>",
+    "<%= ENV['PULLS_APP_NAMESPACE']%>"
+  ];
+
+  function register_app_triggers(event_name) {
+    for (var i = 0; i < namespaces.length; i++) {
+      Livestax.on(namespaces[i] + "." + event_name, function() {
+        window.location.assign(window.location.origin + window.location.pathname + "?signed_request=<%= @signed_request %>");
+      });
+    }
+  };
+
+  register_app_triggers("authentication");
+
   document.getElementById("gh-signin").addEventListener("click", function(e) {
     e.preventDefault();
     Livestax.authenticate.start({
