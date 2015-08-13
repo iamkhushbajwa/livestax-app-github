@@ -55,6 +55,13 @@ describe 'Repository app' do
           page.select '', from: 'org_select'
           expect(page).to have_content 'Select Organization'
         end
+
+        context 'with no repositories', js: true do
+          it 'displays the notice' do
+            page.select 'BAZ', from: 'org_select'
+            expect(page).to have_content 'No Repositories'
+          end
+        end
       end
     end
   end

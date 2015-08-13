@@ -38,9 +38,7 @@ RSpec.configure do |config|
         {'name' => 'Repo 2'},
         {'name' => 'Repo 3'}
       ],
-      'baz' => [
-        {'name' => 'Repo 4'}
-      ]
+      'baz' => []
     }
 
     stub_const('Router::REPO_APP_SECRET', 'secret')
