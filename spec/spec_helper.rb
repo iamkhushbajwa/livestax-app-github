@@ -16,6 +16,20 @@ def signed_request
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZV9pZCI6IjhiOTUwZTIxMGRhNzcyYzNiZTk0MTkzNTA3NzJhZDE4IiwidGltZXN0YW1wIjoxNDExNTQ5ODczLCJ1c2VyX2lkIjoiNjc1YmVkYWEtZTdlNC00Yzg2LTgxYTQtN2E2NTVhNDU5NTIwIiwiaXNfYWRtaW4iOnRydWUsImlzX2d1ZXN0IjpmYWxzZX0.IzDmQv20nZvjIJYsx4Hv6J6uj5DhurspJjf9kkHcm30'
 end
 
+def status_expectation(status)
+  expect(last_response.status).to eq status
+end
+
+def body_expectation(status, body)
+  status_expectation(status)
+  expect(last_response.body).to include body
+end
+
+def location_expectation(status, url)
+  status_expectation(status)
+  expect(last_response.location).to eq url
+end
+
 Capybara.app = app
 Capybara.javascript_driver = :poltergeist
 
@@ -42,7 +56,8 @@ RSpec.configure do |config|
       'baz' => []
     }
 
-    stub_const('Router::REPO_APP_SECRET', 'secret')
+    stub_const('Router::REPOS_APP_SECRET', 'secret')
+    stub_const('Router::PULLS_APP_SECRET', 'secret')
     stub_const("Router::REDIS", Redis.new)
     allow_any_instance_of(Github).to receive(:organizations).and_return(organizations)
     allow_any_instance_of(Github).to receive(:organization_repos).with(any_args) do |request, org|

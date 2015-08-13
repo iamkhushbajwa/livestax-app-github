@@ -4,7 +4,8 @@ require_relative 'github'
 configure do
   require 'redis'
   redis_uri = URI.parse(ENV['REDIS_URL'])
-  REPO_APP_SECRET = ENV['REPO_APP_SECRET']
+  REPOS_APP_SECRET = ENV['REPOS_APP_SECRET']
+  PULLS_APP_SECRET = ENV['PULLS_APP_SECRET']
   REDIS = Redis.new(
     host: redis_uri.host,
     port: redis_uri.port,
@@ -28,6 +29,12 @@ class Router < Sinatra::Base
     end
   end
 
+  get_or_post "/apps/pulls/?" do
+    require_client do |client|
+      erb :pulls
+    end
+  end
+
   get "/auth/?" do
     redirect Github.authorize_url(request.url)
   end
@@ -38,12 +45,13 @@ class Router < Sinatra::Base
 
   get "/logout/?" do
     signed_request = params[:signed_request]
-    uuid = validate_signed_request(signed_request)['user_id']
+    app = params[:app_name]
+    uuid = validate_signed_request(signed_request, app)['user_id']
     REDIS.del(uuid)
-    redirect "/apps/#{params[:app_name]}/?signed_request=#{signed_request}"
+    redirect "/apps/#{app}/?signed_request=#{signed_request}"
   end
 
-  get "/repos/:org/?" do |org|
+  get "/apps/repos/:org/?" do |org|
     require_client do |client|
       client.organization_repos(org).map{|repo| repo['name']}.to_json
     end
@@ -53,8 +61,9 @@ class Router < Sinatra::Base
 
   def require_client
     @signed_request = params[:signed_request]
+    app = request.path_info.split("/")[2]
     return 'This app requires Livestax' if !@signed_request
-    uuid = validate_signed_request(params[:signed_request])['user_id']
+    uuid = validate_signed_request(params[:signed_request], app)['user_id']
 
     if token = REDIS.get(uuid)
       return yield(Github.new(token))
@@ -69,7 +78,8 @@ class Router < Sinatra::Base
     end
   end
 
-  def validate_signed_request(signed_request)
-    JWT.decode(signed_request, REPO_APP_SECRET)[0]
+  def validate_signed_request(signed_request, app)
+    secret = eval("#{app.upcase}_APP_SECRET")
+    JWT.decode(signed_request, secret)[0]
   end
 end

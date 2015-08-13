@@ -82,7 +82,7 @@
 
       var request = new XMLHttpRequest();
       request.onload = changeRepos;
-      request.open("get", "/repos/" + org + "?signed_request=" + signed_request, true);
+      request.open("get", "/apps/repos/" + org + "?signed_request=" + signed_request, true);
       request.send();
     }
   };
