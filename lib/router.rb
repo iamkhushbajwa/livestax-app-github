@@ -36,6 +36,13 @@ class Router < Sinatra::Base
     erb :auth_callback
   end
 
+  get "/logout/?" do
+    signed_request = params[:signed_request]
+    uuid = validate_signed_request(signed_request)['user_id']
+    REDIS.del(uuid)
+    redirect "/apps/#{params[:app_name]}/?signed_request=#{signed_request}"
+  end
+
   get "/repos/:org/?" do |org|
     require_client do |client|
       client.organization_repos(org).map{|repo| repo['name']}.to_json
