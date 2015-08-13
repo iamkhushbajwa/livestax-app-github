@@ -8,6 +8,8 @@
   </div>
 </div>
 
+<%= erb :auth_script, locals: { signed_request: @signed_request, app: @app, logged_in: true } %>
+
 <script>
-  Livestax.trigger("authentication");
+  Livestax.trigger("authentication", "login");
 </script>

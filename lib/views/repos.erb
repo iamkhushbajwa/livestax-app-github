@@ -27,30 +27,10 @@
   <p>This organization doesn't have any repositories, please select another organization.</p>
 </div>
 
+<%= erb :auth_script, locals: { signed_request: @signed_request, app: @app, logged_in: true } %>
 <script>
   var signed_request = "<%= @signed_request %>";
-  Livestax.trigger("authentication");
-  Livestax.menu.set("Logout", "sign-out", function() {
-  var data = {
-    title: "Logout",
-    message: "This will log you out of the GitHub Apps.",
-    buttons: [
-      {
-        title: "Logout",
-        callback: function(){
-          window.location.assign(window.location.origin + "/logout/?app_name=repos&signed_request=" + signed_request);
-        },
-        type: "ok"
-      },
-      {
-        title: "Cancel",
-        callback: function(){},
-        type: "cancel"
-      }
-    ]
-  };
-  Livestax.dialog.show(data);
-  });
+  Livestax.trigger("authentication", "login");
 
   function changeRepos() {
     var html = "<div class='list-group'>";

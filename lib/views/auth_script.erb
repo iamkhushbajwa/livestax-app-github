@@ -1,0 +1,46 @@
+<script>
+  var namespaces = [
+    "<%= ENV['REPOS_APP_NAMESPACE']%>",
+    "<%= ENV['PULLS_APP_NAMESPACE']%>"
+  ];
+
+  for (var i = 0; i < namespaces.length; i++) {
+    Livestax.on(namespaces[i] + ".authentication", function(type) {
+      <% if !logged_in %>
+        if (type === "login") {
+          window.location.assign(window.location.origin + window.location.pathname + "?signed_request=<%= signed_request %>");
+        }
+      <% end %>
+
+      <% if logged_in %>
+        if (type === "logout") {
+          window.location.assign(window.location.origin + "/logout/?app_name=<%= app %>&signed_request=<%= signed_request %>");
+        }
+      <% end %>
+    });
+  }
+
+  <% if logged_in %>
+    Livestax.menu.set("Logout", "sign-out", function() {
+      var data = {
+        title: "Logout",
+        message: "This will log you out of the GitHub Apps.",
+        buttons: [
+          {
+            title: "Logout",
+            callback: function(){
+              window.location.assign(window.location.origin + "/logout/?app_name=<%= app %>&signed_request=<%= signed_request %>");
+            },
+            type: "ok"
+          },
+          {
+            title: "Cancel",
+            callback: function(){},
+            type: "cancel"
+          }
+        ]
+      };
+      Livestax.dialog.show(data);
+    });
+  <% end %>
+</script>

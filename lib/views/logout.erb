@@ -1,0 +1,6 @@
+<p>Redirecting you to the login page</p>
+
+<script>
+  Livestax.trigger("authentication", "logout");
+  window.location.assign(window.location.origin + "/apps/<%= @app %>/?signed_request=<%= @signed_request %>");
+</script>

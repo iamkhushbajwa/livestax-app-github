@@ -44,11 +44,11 @@ class Router < Sinatra::Base
   end
 
   get "/logout/?" do
-    signed_request = params[:signed_request]
-    app = params[:app_name]
-    uuid = validate_signed_request(signed_request, app)['user_id']
+    @signed_request = params[:signed_request]
+    @app = params[:app_name]
+    uuid = validate_signed_request(@signed_request, @app)['user_id']
     REDIS.del(uuid)
-    redirect "/apps/#{app}/?signed_request=#{signed_request}"
+    erb :logout
   end
 
   get "/apps/repos/:org/?" do |org|
@@ -61,7 +61,7 @@ class Router < Sinatra::Base
 
   def require_client
     @signed_request = params[:signed_request]
-    app = request.path_info.split("/")[2]
+    @app = request.path_info.split("/")[2]
     return 'This app requires Livestax' if !@signed_request
     uuid = validate_signed_request(params[:signed_request], app)['user_id']
 
