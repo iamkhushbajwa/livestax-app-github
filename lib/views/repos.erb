@@ -35,11 +35,16 @@
 
   function orgChanged(org) {
     var notice = document.querySelector(".select-org-notice");
-    notice.className = "notice select-org-notice hidden";
+    if (org === "") {
+      document.querySelector("#repositories_list").innerHTML = "";
+      notice.className = "notice select-org-notice";
+    } else {
+      notice.className = "notice select-org-notice hidden";
 
-    var request = new XMLHttpRequest();
-    request.onload = changeRepos;
-    request.open("get", "/repos/" + org + "?signed_request=" + signed_request, true);
-    request.send();
+      var request = new XMLHttpRequest();
+      request.onload = changeRepos;
+      request.open("get", "/repos/" + org + "?signed_request=" + signed_request, true);
+      request.send();
+    }
   };
 </script>

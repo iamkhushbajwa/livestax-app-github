@@ -50,6 +50,11 @@ describe 'Repository app' do
         it 'hides the notice requesting the user to select an org' do
           expect(page).not_to have_content 'Select Organization'
         end
+
+        it 'redisplays the notice if user select no organization' do
+          page.select '', from: 'org_select'
+          expect(page).to have_content 'Select Organization'
+        end
       end
     end
   end
