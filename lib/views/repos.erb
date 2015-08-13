@@ -19,11 +19,25 @@
   <p>Please select an organization from above to view it's repositories.</p>
 </div>
 
+<div class="notice empty-org-notice hidden">
+  <div class="media-badge media-badge-lg media-badge-info-inverse img-circle">
+    <span class="media-badge-container"><i class="fa fa-times"></i></span>
+  </div>
+  <h2 class="text-info"><strong>No Repositories</strong></h2>
+  <p>This organization doesn't have any repositories, please select another organization.</p>
+</div>
+
 <script>
   var signed_request = "<%= @signed_request %>";
   function changeRepos() {
     var html = "<div class='list-group'>";
     var repos = JSON.parse(this.responseText);
+
+    if (repos.length < 1) {
+      var notice = document.querySelector(".empty-org-notice");
+      document.querySelector("#repositories_list").innerHTML = "";
+      return notice.className = "notice empty-org-notice";
+    }
 
     for (var i=0; i < repos.length; i++) {
       listItem = "<a href='#' class='list-group-item'>" + repos[i] + "</a>";
@@ -34,12 +48,20 @@
   };
 
   function orgChanged(org) {
-    var notice = document.querySelector(".select-org-notice");
-    notice.className = "notice select-org-notice hidden";
+    var selectNotice = document.querySelector(".select-org-notice");
+    var emptyNotice = document.querySelector(".empty-org-notice");
+    emptyNotice.className = "notice empty-org-notice hidden";
 
-    var request = new XMLHttpRequest();
-    request.onload = changeRepos;
-    request.open("get", "/repos/" + org + "?signed_request=" + signed_request, true);
-    request.send();
+    if (org === "") {
+      document.querySelector("#repositories_list").innerHTML = "";
+      selectNotice.className = "notice select-org-notice";
+    } else {
+      selectNotice.className = "notice select-org-notice hidden";
+
+      var request = new XMLHttpRequest();
+      request.onload = changeRepos;
+      request.open("get", "/repos/" + org + "?signed_request=" + signed_request, true);
+      request.send();
+    }
   };
 </script>
