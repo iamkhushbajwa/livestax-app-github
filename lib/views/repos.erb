@@ -29,6 +29,28 @@
 
 <script>
   var signed_request = "<%= @signed_request %>";
+  Livestax.menu.set("Logout", "sign-out", function() {
+  var data = {
+    title: "Logout",
+    message: "This will log you out of the GitHub Apps.",
+    buttons: [
+      {
+        title: "Logout",
+        callback: function(){
+          window.location.assign(window.location.origin + "/logout/?app_name=repos&signed_request=" + signed_request);
+        },
+        type: "ok"
+      },
+      {
+        title: "Cancel",
+        callback: function(){},
+        type: "cancel"
+      }
+    ]
+  };
+  Livestax.dialog.show(data);
+  });
+
   function changeRepos() {
     var html = "<div class='list-group'>";
     var repos = JSON.parse(this.responseText);

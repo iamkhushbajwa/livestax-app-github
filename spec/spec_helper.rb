@@ -4,6 +4,7 @@ Dotenv.load
 require 'rack/test'
 require 'capybara/rspec'
 require 'capybara/poltergeist'
+require 'fakeredis/rspec'
 require 'router'
 require 'github'
 
@@ -42,6 +43,7 @@ RSpec.configure do |config|
     }
 
     stub_const('Router::REPO_APP_SECRET', 'secret')
+    stub_const("Router::REDIS", Redis.new)
     allow_any_instance_of(Github).to receive(:organizations).and_return(organizations)
     allow_any_instance_of(Github).to receive(:organization_repos).with(any_args) do |request, org|
       org_repos[org]
@@ -50,7 +52,7 @@ RSpec.configure do |config|
   end
 
   config.after(:each) do
-    Router.class_variable_set :@@token, {}
+    Router::REDIS.flushdb
   end
 
   config.mock_with :rspec do |mocks|

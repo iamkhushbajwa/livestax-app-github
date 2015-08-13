@@ -119,7 +119,7 @@ describe Router do
     context 'logged in previously' do
       before(:each) do
         uuid = JWT.decode(signed_request, Router::REPO_APP_SECRET)[0]['user_id']
-        Router.class_variable_set :@@token, {uuid => 'foobar'}
+        Router::REDIS.set(uuid, 'foobar')
       end
 
       context 'without trailing slash' do
