@@ -101,6 +101,22 @@ describe Router do
     end
   end
 
+  context 'accessing the logout route' do
+    context 'with trailing slash' do
+      it 'returns a successful response' do
+        get "/logout/?signed_request=#{signed_request}&app_name=repos"
+        body_expectation(200, 'Redirecting you to the login page')
+      end
+    end
+
+    context 'without trailing slash' do
+      it 'returns a successful response' do
+        get "/logout?signed_request=#{signed_request}&app_name=repos"
+        body_expectation(200, 'Redirecting you to the login page')
+      end
+    end
+  end
+
   context 'accessing the authenticate route' do
     context 'with trailing slash' do
       it 'returns a redirected response' do
