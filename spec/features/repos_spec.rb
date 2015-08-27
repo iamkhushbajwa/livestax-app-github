@@ -26,40 +26,71 @@ describe 'Repository app' do
     end
 
     context 'with a code parameter' do
-      before(:each) do
-        visit "/apps/repos?signed_request=#{signed_request}&code=bar"
-      end
-
-      it 'displays a select box of organizations' do
-        expect(page).to have_select('org_select', options: ['', 'FOO','BAR','BAZ'])
-      end
-
-      it 'displys a notice requesting the user to select an org' do
-        expect(page).to have_content 'Select Organization'
-      end
-
-      context 'selecting an organization', js: true do
+      context "user's Livestax org matches one on GitHub", js: true do
         before(:each) do
-          page.select 'FOO', from: 'org_select'
+          visit "/apps/repos?signed_request=#{signed_request(user_id: "org=foo")}&code=bar"
+        end
+
+        it 'displays a select box of organizations' do
+          expect(page).to have_select('org_select', options: ['', 'FOO','BAR','BAZ'])
+        end
+
+        it 'does not displys a notice requesting the user to select an org' do
+          expect(page).not_to have_content 'Select Organization'
         end
 
         it 'displays the repositories from the organization' do
           expect(page).to have_content 'Repo 1'
         end
+      end
 
-        it 'hides the notice requesting the user to select an org' do
-          expect(page).not_to have_content 'Select Organization'
+      context "user's Livestax org doesn't match any on GitHub" do
+        before(:each) do
+          visit "/apps/repos?signed_request=#{signed_request}&code=bar"
         end
 
-        it 'redisplays the notice if user select no organization' do
-          page.select '', from: 'org_select'
+        it 'displays a select box of organizations' do
+          expect(page).to have_select('org_select', options: ['', 'FOO','BAR','BAZ'])
+        end
+
+        it 'displys a notice requesting the user to select an org' do
           expect(page).to have_content 'Select Organization'
         end
 
-        context 'with no repositories', js: true do
-          it 'displays the notice' do
-            page.select 'BAZ', from: 'org_select'
-            expect(page).to have_content 'No Repositories'
+        context 'when reloading the app' do
+          before(:each) do
+            visit "/apps/repos?signed_request=#{signed_request}"
+          end
+
+          it 'remembers the token of the user' do
+            expect(page).to have_select('org_select', options: ['', 'FOO','BAR','BAZ'])
+            expect(page).to have_content 'Select Organization'
+          end
+        end
+
+        context 'selecting an organization', js: true do
+          before(:each) do
+            page.select 'FOO', from: 'org_select'
+          end
+
+          it 'displays the repositories from the organization' do
+            expect(page).to have_content 'Repo 1'
+          end
+
+          it 'hides the notice requesting the user to select an org' do
+            expect(page).not_to have_content 'Select Organization'
+          end
+
+          it 'redisplays the notice if user select no organization' do
+            page.select '', from: 'org_select'
+            expect(page).to have_content 'Select Organization'
+          end
+
+          context 'with no repositories', js: true do
+            it 'displays the notice' do
+              page.select 'BAZ', from: 'org_select'
+              expect(page).to have_content 'No Repositories'
+            end
           end
         end
       end

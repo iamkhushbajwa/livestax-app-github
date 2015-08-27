@@ -5,6 +5,7 @@ gem 'oauth2'
 gem 'jwt'
 gem 'redis'
 gem 'shotgun', group: :development
+gem 'damerau-levenshtein'
 
 group :test do
   gem 'rspec'
@@ -12,6 +13,7 @@ group :test do
   gem 'capybara'
   gem 'poltergeist'
   gem 'fakeredis'
+  gem 'webmock'
 end
 
 group :test, :development do
