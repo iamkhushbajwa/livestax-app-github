@@ -3,7 +3,7 @@
     <select type="select" class="form-control" id="org_select" onchange="orgChanged(this.value)">
       <option></option>
       <% @orgs.each do |org| %>
-        <option value="<%= org %>"><%= org.upcase %></option>
+        <option <%= 'selected ' if @selected_org.upcase == org.upcase %>value="<%= org %>"><%= org.upcase %></option>
       <% end %>
     </select>
   </div>
@@ -67,4 +67,8 @@
       request.send();
     }
   };
+
+  var orgSelector = document.querySelector("#org_select");
+  var selectedOrg = orgSelector.options.item(orgSelector.selectedIndex).value;
+  orgChanged(selectedOrg);
 </script>

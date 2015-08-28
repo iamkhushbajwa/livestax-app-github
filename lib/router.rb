@@ -1,5 +1,8 @@
 require 'sinatra'
+require "damerau-levenshtein"
 require_relative 'github'
+require_relative 'fuzzy_match'
+require_relative 'user'
 
 configure do
   require 'redis'
@@ -24,7 +27,9 @@ class Router < Sinatra::Base
 
   get_or_post "/apps/repos/?" do
     require_client do |client|
+      user_uuid = validate_signed_request(@signed_request, @app)['user_id']
       @orgs = client.organizations.map{|org| org['login']}
+      @selected_org = authenticated?(user_uuid) ? select_org(user_uuid, @orgs) : ''
       erb :repos
     end
   end
@@ -63,7 +68,7 @@ class Router < Sinatra::Base
     @signed_request = params[:signed_request]
     @app = request.path_info.split("/")[2]
     return 'This app requires Livestax' if !@signed_request
-    uuid = validate_signed_request(params[:signed_request], app)['user_id']
+    uuid = validate_signed_request(@signed_request, @app)['user_id']
 
     if token = REDIS.get(uuid)
       return yield(Github.new(token))
@@ -71,11 +76,21 @@ class Router < Sinatra::Base
 
     if code = params[:code]
       token = Github.get_token(code, request.url)
-      REDIS.set(uuid, token)
+      REDIS.set(uuid, token) if authenticated?(uuid)
       yield(Github.new(token))
     else
        erb(:login)
     end
+  end
+
+  def authenticated?(uuid)
+    !!uuid
+  end
+
+  def select_org(user_uuid, orgs)
+    user = User::fetch(user_uuid, REPOS_APP_SECRET)
+    org_name = user.primary_organization.name
+    FuzzyMatch.new(org_name, orgs).closest
   end
 
   def validate_signed_request(signed_request, app)

@@ -5,6 +5,7 @@ require 'rack/test'
 require 'capybara/rspec'
 require 'capybara/poltergeist'
 require 'fakeredis/rspec'
+require 'webmock/rspec'
 require 'router'
 require 'github'
 
@@ -12,8 +13,53 @@ def app
   @app ||= Router
 end
 
-def signed_request
-  'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpbnN0YW5jZV9pZCI6IjhiOTUwZTIxMGRhNzcyYzNiZTk0MTkzNTA3NzJhZDE4IiwidGltZXN0YW1wIjoxNDExNTQ5ODczLCJ1c2VyX2lkIjoiNjc1YmVkYWEtZTdlNC00Yzg2LTgxYTQtN2E2NTVhNDU5NTIwIiwiaXNfYWRtaW4iOnRydWUsImlzX2d1ZXN0IjpmYWxzZX0.IzDmQv20nZvjIJYsx4Hv6J6uj5DhurspJjf9kkHcm30'
+def signed_request(opts={})
+  data = {
+    instance_id: "8b950e210da772c3be9419350772ad18",
+    timestamp: Time.now.to_i,
+    user_id: "675bedaa-e7e4-4c86-81a4-7a655a459520",
+    is_admin: true,
+    is_guest: false
+  }.merge(opts)
+
+  JWT.encode(data, 'secret')
+end
+
+def user_data(opts={})
+  {
+    organizations: [
+      {
+        slug: "s",
+        name: "Public"
+      }
+    ],
+    last_name: "User",
+    full_name: "Example User",
+    first_name: "Example"
+  }.merge(opts).to_json
+end
+
+def build_org(org)
+  {
+    slug: org,
+    name: org
+  }
+end
+
+def build_user_options_hash(opts)
+  data = {}
+  return data unless opts.include?('=')
+  opts.split('&').each do |opt_string|
+    opt = opt_string.split('=')
+    if opt[0] == 'org'
+      data[:organizations] = [
+        build_org(opt[1])
+      ]
+    else
+      data[opt[0]] = opt[1]
+    end
+  end
+  data
 end
 
 def status_expectation(status)
@@ -32,6 +78,7 @@ end
 
 Capybara.app = app
 Capybara.javascript_driver = :poltergeist
+WebMock.disable_net_connect!(allow_localhost: true)
 
 RSpec.configure do |config|
   config.expect_with :rspec do |expectations|
@@ -64,6 +111,13 @@ RSpec.configure do |config|
       org_repos[org]
     end
     allow(Github).to receive(:get_token).and_return('foobar')
+
+    stub_request(:any, /#{ENV['LIVESTAX_USER_URL']}\/user\/[-|\w]+/)
+      .to_return(lambda { |request|
+        opts = request.uri.path.to_s.split("/").last
+        data = build_user_options_hash(opts)
+        {status: 200, body: user_data(data), headers: {}}
+      })
   end
 
   config.after(:each) do
