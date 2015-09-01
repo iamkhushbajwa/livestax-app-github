@@ -1,4 +1,5 @@
 <script>
+  var origin = window.location.protocol + '//' + window.location.host;
   var namespaces = [
     "<%= ENV['REPOS_APP_NAMESPACE']%>",
     "<%= ENV['PULLS_APP_NAMESPACE']%>"
@@ -8,13 +9,13 @@
     Livestax.on(namespaces[i] + ".authentication", function(type) {
       <% if !logged_in %>
         if (type === "login") {
-          window.location.assign(window.location.origin + window.location.pathname + "?signed_request=<%= signed_request %>");
+          window.location.assign(origin + window.location.pathname + "?signed_request=<%= signed_request %>");
         }
       <% end %>
 
       <% if logged_in %>
         if (type === "logout") {
-          window.location.assign(window.location.origin + "/logout/?app_name=<%= app %>&signed_request=<%= signed_request %>");
+          window.location.assign(origin + "/logout/?app_name=<%= app %>&signed_request=<%= signed_request %>");
         }
       <% end %>
     });
@@ -29,7 +30,7 @@
           {
             title: "Logout",
             callback: function(){
-              window.location.assign(window.location.origin + "/logout/?app_name=<%= app %>&signed_request=<%= signed_request %>");
+              window.location.assign(origin + "/logout/?app_name=<%= app %>&signed_request=<%= signed_request %>");
             },
             type: "ok"
           },
