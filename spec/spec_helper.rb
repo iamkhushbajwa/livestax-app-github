@@ -111,7 +111,7 @@ RSpec.configure do |config|
     end
     allow(Github).to receive(:get_token).and_return('foobar')
 
-    stub_request(:any, /#{ENV['LIVESTAX_USER_URL']}\/user\/[-|\w]+/)
+    stub_request(:any, /#{ENV['LIVESTAX_API_URL']}\/user\/[-|\w]+/)
       .to_return(lambda { |request|
         opts = request.uri.path.to_s.split("/").last
         data = build_user_options_hash(opts)
