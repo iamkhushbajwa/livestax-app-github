@@ -26,6 +26,20 @@ describe 'Repository app' do
     end
 
     context 'with a code parameter' do
+      context "user's Livestax org is nil", js: true do
+        before(:each) do
+          visit "/apps/repos?signed_request=#{signed_request(user_id: "org=nil")}&code=bar"
+        end
+
+        it 'displays a select box of organizations' do
+          expect(page).to have_select('org_select', options: ['', 'FOO','BAR','BAZ'])
+        end
+
+        it 'displys a notice requesting the user to select an org' do
+          expect(page).to have_content 'Select Organization'
+        end
+      end
+
       context "user's Livestax org matches one on GitHub", js: true do
         before(:each) do
           visit "/apps/repos?signed_request=#{signed_request(user_id: "org=foo")}&code=bar"

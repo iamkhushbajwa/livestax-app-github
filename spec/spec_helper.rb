@@ -52,9 +52,8 @@ def build_user_options_hash(opts)
   opts.split('&').each do |opt_string|
     opt = opt_string.split('=')
     if opt[0] == 'org'
-      data[:organizations] = [
-        build_org(opt[1])
-      ]
+      data[:organizations] = []
+      data[:organizations] << build_org(opt[1]) if opt[1] != 'nil'
     else
       data[opt[0]] = opt[1]
     end
