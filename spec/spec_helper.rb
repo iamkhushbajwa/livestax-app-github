@@ -52,9 +52,8 @@ def build_user_options_hash(opts)
   opts.split('&').each do |opt_string|
     opt = opt_string.split('=')
     if opt[0] == 'org'
-      data[:organizations] = [
-        build_org(opt[1])
-      ]
+      data[:organizations] = []
+      data[:organizations] << build_org(opt[1]) if opt[1] != 'nil'
     else
       data[opt[0]] = opt[1]
     end
@@ -112,7 +111,7 @@ RSpec.configure do |config|
     end
     allow(Github).to receive(:get_token).and_return('foobar')
 
-    stub_request(:any, /#{ENV['LIVESTAX_USER_URL']}\/user\/[-|\w]+/)
+    stub_request(:any, /#{ENV['LIVESTAX_API_URL']}\/user\/[-|\w]+/)
       .to_return(lambda { |request|
         opts = request.uri.path.to_s.split("/").last
         data = build_user_options_hash(opts)

@@ -2,5 +2,5 @@
 
 <script>
   Livestax.trigger("authentication", "logout");
-  window.location.assign(window.location.origin + "/apps/<%= @app %>/?signed_request=<%= @signed_request %>");
+  window.location.assign(window.location.protocol + '//' + window.location.host + "/apps/<%= @app %>/?signed_request=<%= @signed_request %>");
 </script>

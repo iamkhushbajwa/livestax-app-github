@@ -28,7 +28,7 @@ module User
 
   def fetch(uuid, app_secret)
     @app_secret = app_secret
-    @api_base_url = ENV['LIVESTAX_USER_URL']
+    @api_base_url = ENV['LIVESTAX_API_URL']
     user_data = get_user(user_api_uri(uuid))
     UserRecord.new(user_data)
   end

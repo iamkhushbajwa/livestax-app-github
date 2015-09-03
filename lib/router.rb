@@ -89,7 +89,7 @@ class Router < Sinatra::Base
 
   def select_org(user_uuid, orgs)
     user = User::fetch(user_uuid, REPOS_APP_SECRET)
-    org_name = user.primary_organization.name
+    org_name = user.primary_organization ? user.primary_organization.name : ''
     FuzzyMatch.new(org_name, orgs).closest
   end
 
